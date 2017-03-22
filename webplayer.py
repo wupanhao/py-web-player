@@ -3,32 +3,40 @@ from flask import Flask,request,render_template
 import os
 import sys
 import thread
+import threading
 import subprocess
 import time
 reload(sys)
-sys.setdefaultencoding('utf-8')
+sys.setdefaultencoding('utf-8')		#解决模板的编码问题
 app = Flask(__name__)
-root_dir = '/home/pi/kugou'
+root_dir = '/home/pi/kugou'		#歌曲文件夹的目录
 playing = None
-player='omxplayer '
+player='mpg123 '			#播放音乐的命令
 lists = []
 current = root_dir
 
-def list_play():
+def list_play():			#用于按列表播放音乐的函数
 	global playing
 	while True:
 		if lists and not playing:
 			playing = lists.pop()
-			os.system(player +'"'+ playing +'" ')	
-			os.system("killall omxplayer.bin" )
-			playing = None
-			time.sleep(5)
-		else :	time.sleep(10)
+			t = threading.Thread(target=os.system, args=(player +'"'+ playing +'" ',))
+			#os.system(player +'"'+ playing +'" ')	
+			#time.sleep(5)
+			#os.system("killall omxplayer.bin" )
+			t.start()
+			t.join()
+			time.sleep(3)
+		else :	
+			time.sleep(10)
+		stat = subprocess.check_output('ps aux | grep mpg123  | wc -l',shell=True)
+          	if stat == 1 :
+                	playing = None
 		print lists		
 
 thread.start_new_thread(list_play,())
 
-@app.route('/')
+@app.route('/')				#主函数
 def index():
 	global playing
 	global lists
@@ -42,31 +50,31 @@ def index():
 	files = os.listdir(current)
 	musics = []
 	dirs = []
-	stat = subprocess.check_output('ps aux | grep omxplayer  | wc -l',shell=True)
+	stat = subprocess.check_output('ps aux | grep mpg123  | wc -l',shell=True)
 	if stat == 1 :
 		playing = None
-	for file in files:
+	for file in files:			#获取歌曲和目录
 		if os.path.isdir(current + '/' + file):	dirs.append(file)
 		elif file[-4:] == '.mp3' :	musics.append(file)
 	dirs.append('..')
 	musics.sort()
 	dirs.sort()
-	if music:
+	if music:				#播放音乐
 		print music
 		
 	#	thread.start_new_thread(os.system,player +'"'+ music+'" &')
-		os.system("killall omxplayer.bin" )
+		os.system("killall mpg123" )
 		os.system(player +'"'+ music+'" &')
 		playing = music
 #		return music + 'is on playing\n' + render_template('views.html',current = path , dirs = dirs ,musics = musics)
 	if cmd:
 		if cmd == 'killall':
-			os.system("killall omxplayer.bin" )
+			os.system("killall mpg123" )
 			playing =  None
-	if add:	
+	if add:					#添加列表	
 		print add
 		lists.append(add)
-	if rm:
+	if rm:					#删除列表
 		print rm
 		lists.remove(rm)
 	print playing
