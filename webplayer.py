@@ -21,6 +21,7 @@ def list_play():
 			playing = lists.pop()
 			os.system(player +'"'+ playing +'" ')	
 			os.system("killall omxplayer.bin" )
+			playing = None
 			time.sleep(5)
 		else :	time.sleep(10)
 		print lists		
