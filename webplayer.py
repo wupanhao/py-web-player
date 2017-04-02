@@ -30,7 +30,7 @@ def list_play():			#用于按列表播放音乐的函数
 		else :	
 			time.sleep(10)
 		stat = subprocess.check_output('ps aux | grep mpg123  | wc -l',shell=True)
-          	if stat == 1 :
+          	if int(stat) <= 2 :
                 	playing = None
 		print lists		
 
