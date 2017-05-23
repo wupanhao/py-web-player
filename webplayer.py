@@ -9,7 +9,7 @@ import time
 reload(sys)
 sys.setdefaultencoding('utf-8')		#解决模板的编码问题
 app = Flask(__name__)
-root_dir = '/home/pi/kugou'		#歌曲文件夹的目录
+root_dir = '/home/pi/Public/kugou'		#歌曲文件夹的目录
 playing = None
 player='mpg123 '			#播放音乐的命令
 lists = []
@@ -34,6 +34,14 @@ def list_play():			#用于按列表播放音乐的函数
                 	playing = None
 		print lists		
 
+def get_cur_music(cmd):
+        info=subprocess.check_output("ps aux | grep  "+cmd,shell=True)
+        infos = info.split('\n')
+        l = len(info.split('\n'))
+        if l > 3:
+                return os.path.basename(infos[1])[:-4]
+
+
 thread.start_new_thread(list_play,())
 
 @app.route('/')				#主函数
@@ -50,6 +58,7 @@ def index():
 	files = os.listdir(current)
 	musics = []
 	dirs = []
+	playing = get_cur_music("mpg123")
 	stat = subprocess.check_output('ps aux | grep mpg123  | wc -l',shell=True)
 	if stat == 1 :
 		playing = None
