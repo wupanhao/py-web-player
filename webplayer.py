@@ -5,11 +5,12 @@ import sys
 import thread
 import threading
 import subprocess
+import commands
 import time
 reload(sys)
 sys.setdefaultencoding('utf-8')		#解决模板的编码问题
 app = Flask(__name__)
-root_dir = '/home/pi/Public/kugou'		#歌曲文件夹的目录
+root_dir = os.environ['HOME']+'/Music'		#歌曲文件夹的目录
 playing = None
 player='mpg123 '			#播放音乐的命令
 lists = []
@@ -49,6 +50,10 @@ def index():
 	global playing
 	global lists
 	global current
+	global root_dir
+	df = commands.getoutput('df -h')
+	if root_dir not in df:
+		os.system('sudo mount /dev/sda1 '+root_dir)
 	if request.args.get('path') and os.path.isdir(request.args.get('path')):
 		current = request.args.get('path') 
 	music = request.args.get('music')
@@ -65,7 +70,8 @@ def index():
 	for file in files:			#获取歌曲和目录
 		if os.path.isdir(current + '/' + file):	dirs.append(file)
 		elif file[-4:] == '.mp3' :	musics.append(file)
-	dirs.append('..')
+	if os.path.abspath(current) != root_dir:
+		dirs.append('..')
 	musics.sort()
 	dirs.sort()
 	if music:				#播放音乐
