@@ -51,9 +51,9 @@ def index():
 	global lists
 	global current
 	global root_dir
-	df = commands.getoutput('df -h')
-	if root_dir not in df:
-		os.system('sudo mount /dev/sda1 '+root_dir)
+	#df = commands.getoutput('df -h')
+	#if root_dir not in df:
+	#	os.system('sudo mount /dev/sda1 '+root_dir)
 	if request.args.get('path') and os.path.isdir(request.args.get('path')):
 		current = request.args.get('path') 
 	music = request.args.get('music')

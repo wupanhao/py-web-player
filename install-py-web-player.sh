@@ -15,4 +15,6 @@ git clone https://github.com/wupanhao/py-web-player
 
 mkdir Music
 
-sudo mount /dev/sda1 $HOME/Music
+#sudo mount /dev/sda1 $HOME/Music
+echo "sh $HOME/py-web-player/start.sh " >> $HOME/start.sh
+sudo sed -i "/^exit/i\nohup sh $HOME/start.sh  &"  /etc/rc.local
